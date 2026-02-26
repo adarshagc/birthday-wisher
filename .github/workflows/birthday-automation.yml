@@ -1,0 +1,30 @@
+name: Birthday Wisher Automation
+
+on:
+  schedule:
+    - cron: '0 3 * * *'   # Runs daily at 3 AM UTC
+  workflow_dispatch:      # Allows manual run
+
+jobs:
+  run-birthday-wisher:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Build Project
+        run: mvn clean install
+
+      - name: Run Application
+        run: mvn spring-boot:run
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+          EMAIL_USERNAME: ${{ secrets.EMAIL_USERNAME }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
