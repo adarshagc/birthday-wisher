@@ -1,5 +1,7 @@
 package com.adarsha.birthday_wisher.model;
 
+import jakarta.validation.constraints.*;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -9,9 +11,19 @@ public class Birthday {
     @Id
     private String id;
 
+    @NotBlank(message = "Name is required")
     private String name;
+
+    @Email(message = "Invalid email format")
+    @NotBlank(message = "Email is required")
     private String email;
+
+    @Min(value = 1, message = "Month must be between 1 and 12")
+    @Max(value = 12, message = "Month must be between 1 and 12")
     private int month;
+
+    @Min(value = 1, message = "Day must be between 1 and 31")
+    @Max(value = 31, message = "Day must be between 1 and 31")
     private int day;
 
     // constructor
