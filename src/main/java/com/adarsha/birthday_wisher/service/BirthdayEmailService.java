@@ -25,7 +25,7 @@ public class BirthdayEmailService {
     private JavaMailSender mailSender;
 
     //Runs every day at 9 AM
-    @Scheduled(cron = "0 */9 * * * ?")
+    @Scheduled(cron = "0 0 9 * *  ?")
     public void sendBirthdayEmails() {
 
         try {
