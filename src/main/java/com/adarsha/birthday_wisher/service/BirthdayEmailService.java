@@ -1,4 +1,4 @@
-package com.adarsha.birthday_wisher;
+package com.adarsha.birthday_wisher.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
@@ -6,6 +6,9 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
+import com.adarsha.birthday_wisher.model.Birthday;
+import com.adarsha.birthday_wisher.repository.BirthdayRepository;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -15,6 +18,9 @@ import java.util.*;
 @Service
 public class BirthdayEmailService {
     
+    @Autowired
+    private BirthdayRepository repository;
+
     @Autowired
     private JavaMailSender mailSender;
 
@@ -28,45 +34,15 @@ public class BirthdayEmailService {
             int month = today.getMonthValue();
             int day = today.getDayOfMonth();
 
-            InputStream is = new ClassPathResource("birthdays.csv").getInputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-            
-            String line;
-            boolean firstLine = true;
+            List<Birthday> list = repository.findByMonthAndDay(month, day);
 
-            while ((line = reader.readLine()) != null) {
+            for(Birthday person : list) {
+                String template = getRandomTemplate();
+                template = template.replace("[NAME]", person.getName());
 
-                System.out.println("Reading line: " + line);
-
-                
-                if(firstLine) {
-                    firstLine = false;
-                    continue;
-                }
-
-                String[] data = line.split(",");
-
-                String name = data[0];
-                String email = data[1];
-                int bMonth = Integer.parseInt(data[2]);
-                int bDay = Integer.parseInt(data[3]);
-
-                if(bMonth == month && bDay == day) {
-
-                    String template = getRandomTemplate();
-                    template = template.replace("[NAME]", name);
-
-                    sendEmail(email, template);
-
-
-                    //just checking
-                    
-                    System.out.println("Checking: " + bMonth + "/" + bDay);
-                    System.out.println("Today: " + month + "/" + day);
-
-
-                }
+                sendEmail(person.getEmail(), template);
             }
+
         }catch(Exception e) {
             e.printStackTrace();
         }
